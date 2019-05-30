@@ -46,39 +46,27 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
- * Abstract processor of browser-based HTTP-based authentication requests.
+ * 基于浏览器、基于HTTP的身份验证请求的抽象处理器。
  *
  * <h3>认证处理</h3>
  *
  * 过滤器要求你设置authenticationManager属性. 需要AuthenticationManager来处理通过实现类创建的认证请求令牌。
  * <p>
- * 如果请求与{@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)}匹配，此过滤器将拦截请求并尝试从该请求执行身份验证。
- * This filter will intercept a request and attempt to perform authentication from that
- * request if the request matches the
- * {@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)}.
+ * 如果请求与{@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)}匹配，
+ * 此过滤器将拦截请求并尝试从该请求执行身份验证。
  * <p>
- * 身份验证由{@link #attemptAuthentication(HttpServletRequest, HttpServletResponse) attemptAuthentication}方法执行，该方法必须由子类实现。
+ * 身份验证由{@link #attemptAuthentication(HttpServletRequest, HttpServletResponse) attemptAuthentication}方法执行，
+ * 该方法必须由子类实现。
  *
  * <h4>认证成功</h4>
+ * <p></p>
  * 如果认证成功，作为结果的Authentication对象将被放入当前线程的SecurityContext中，该SecurityContext对象保证已由更早的过滤器创建。
  * 然后将调用配置的{@link #setAuthenticationSuccessHandler(AuthenticationSuccessHandler) AuthenticationSuccessHandler}，
  * 以便在成功登录后将重定向带到适当的目标。 默认行为在{@link SavedRequestAwareAuthenticationSuccessHandler}中实现，
- * 该函数将使用ExceptionTranslationFilter设置的任何DefaultSavedRequest，并将用户重定向到其中包含的URL。
+ * 该类将使用ExceptionTranslationFilter设置的任何DefaultSavedRequest，并将用户重定向到其中包含的URL。
  * 您可以通过注入一个此类的不同的配置实例来自定义此行为或使用不同的实现，否则它将重定向到webapp根目录“/”。
- *
- * <p>
- * The configured {@link #setAuthenticationSuccessHandler(AuthenticationSuccessHandler)
- * AuthenticationSuccessHandler} will then be called to take the redirect to the
- * appropriate destination after a successful login. The default behaviour is implemented
- * in a {@link SavedRequestAwareAuthenticationSuccessHandler} which will make use of any
- * <tt>DefaultSavedRequest</tt> set by the <tt>ExceptionTranslationFilter</tt> and
- * redirect the user to the URL contained therein. Otherwise it will redirect to the
- * webapp root "/". You can customize this behaviour by injecting a differently configured
- * instance of this class, or by using a different implementation.
- * <p>
- * See the
- * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)}
- * method for more information.
+ * </p>
+ * 更多的信息查看方法{@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)}
  *
  * <h4>认证失败</h4>
  *

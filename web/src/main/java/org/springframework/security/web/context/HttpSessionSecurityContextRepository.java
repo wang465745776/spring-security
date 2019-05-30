@@ -38,16 +38,21 @@ import org.springframework.util.Assert;
 import org.springframework.web.util.WebUtils;
 
 /**
- * A {@code SecurityContextRepository} implementation which stores the security context in
- * the {@code HttpSession} between requests.
- * <p>
- * The {@code HttpSession} will be queried to retrieve the {@code SecurityContext} in the
- * <tt>loadContext</tt> method (using the key {@link #SPRING_SECURITY_CONTEXT_KEY} by
- * default). If a valid {@code SecurityContext} cannot be obtained from the
- * {@code HttpSession} for whatever reason, a fresh {@code SecurityContext} will be
- * created by calling by {@link SecurityContextHolder#createEmptyContext()} and this
- * instance will be returned instead.
- * <p>
+ * 一个{@code SecurityContextRepository}实现，用于将安全上下文存储在请求之间的{@code HttpSession}中。
+ *
+ * 在loadContext方法中将查询{@code HttpSession}以查询{@code SecurityContext}
+ * （默认情况下使用key{@link #SPRING_SECURITY_CONTEXT_KEY}）。
+ * 如果由于某种原因无法从{@code HttpSession}获取有效的{@code SecurityContext}，
+ * 则会通过调用{@link SecurityContextHolder#createEmptyContext()}创建一个新的SecurityContext，返回此实例。
+ *
+ * 调用saveContext时，上下文将存储在相同key下，提供的
+ * 价值已经改变
+ * 配置的AuthenticationTrustResolver不会报告内容代表匿名用户
+ *
+ * 使用标准配置，如果{@code HttpSession}不存在，则在loadContext期间不会创建{@code HttpSession}。
+ * 当在Web请求结束时调用saveContext并且不存在会话时，只有在提供的SecurityContext不等于空的SecurityContext实例时才会创建新的HttpSession。这避免了不必要的HttpSession创建，但在请求期间自动存储对上下文所做的更改。请注意，如果将SecurityContextPersistenceFilter配置为急切地创建会话，则此处应用的会话最小化逻辑不会产生任何差异。如果您正在使用eager会话创建，那么您应该确保此类的allowSessionCreation属性设置为true（默认值）。
+ 如果由于某种原因，不应该创建HttpSession（例如，如果正在使用基本身份验证或者永远不会呈现相同jsessionid的类似客户端），则allowSessionCreation应设置为false。只有在您确实需要节省服务器内存并确保使用SecurityContextHolder的所有类都设计为Web请求之间没有SecurityContext持久性时才执行此操作。
+ *
  * When <tt>saveContext</tt> is called, the context will be stored under the same key,
  * provided
  * <ol>
@@ -81,7 +86,7 @@ import org.springframework.web.util.WebUtils;
  */
 public class HttpSessionSecurityContextRepository implements SecurityContextRepository {
 	/**
-	 * The default key under which the security context will be stored in the session.
+	 * 在session中存储安全上下文的默认key。
 	 */
 	public static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 

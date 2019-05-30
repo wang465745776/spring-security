@@ -30,41 +30,35 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
- * Populates the {@link SecurityContextHolder} with information obtained from the
- * configured {@link SecurityContextRepository} prior to the request and stores it back in
- * the repository once the request has completed and clearing the context holder. By
- * default it uses an {@link HttpSessionSecurityContextRepository}. See this class for
- * information <tt>HttpSession</tt> related configuration options.
+ * 使用在请求之前，从配置的{@link SecurityContextRepository}获取的信息填充{@link SecurityContextHolder}，
+ * 并在请求完成并清除上下文持有者后，将其存储回存储库。默认情况下，它使用{@link HttpSessionSecurityContextRepository}。
+ * 也就是说默认情况下，使用HttpSession保存SecurityContext信息。
+ * 有关HttpSession相关配置选项的信息，请参阅此类。
  * <p>
- * This filter will only execute once per request, to resolve servlet container
- * (specifically Weblogic) incompatibilities.
+ * 此过滤器每个请求只执行一次，以解决servlet容器（特别是Weblogic）不兼容问题。
  * <p>
- * This filter MUST be executed BEFORE any authentication processing mechanisms.
- * Authentication processing mechanisms (e.g. BASIC, CAS processing filters etc) expect
- * the <code>SecurityContextHolder</code> to contain a valid <code>SecurityContext</code>
- * by the time they execute.
+ * 必须在任何身份验证处理机制之前执行此过滤器。
+ * 身份验证处理机制（例如BASIC，CAS处理过滤器等）期望在执行时SecurityContextHolder包含有效的SecurityContext。
  * <p>
- * This is essentially a refactoring of the old
- * <tt>HttpSessionContextIntegrationFilter</tt> to delegate the storage issues to a
- * separate strategy, allowing for more customization in the way the security context is
- * maintained between requests.
- * <p>
- * The <tt>forceEagerSessionCreation</tt> property can be used to ensure that a session is
- * always available before the filter chain executes (the default is <code>false</code>,
- * as this is resource intensive and not recommended).
- *
+ * 这本质上是对旧HttpSessionContextIntegrationFilter的重构，以将存储问题委托给单独的策略，
+ * 允许在请求之间维护安全上下文的方式进行更多自定义。
+ * forceEagerSessionCreation属性可用于确保在执行过滤器链之前会话始终可用（默认值为false，因为这是资源密集型而不建议使用）。
  * @author Luke Taylor
  * @since 3.0
  */
 public class SecurityContextPersistenceFilter extends GenericFilterBean {
 
+	/** 请求中标示是否已经过滤的属性键，目的是确保每个请求仅应用过滤器一次 */
 	static final String FILTER_APPLIED = "__spring_security_scpf_applied";
 
+	/** 安全上下文仓库 */
 	private SecurityContextRepository repo;
 
+	/** 用于确保在执行过滤器链之前会话始终可用 */
 	private boolean forceEagerSessionCreation = false;
 
 	public SecurityContextPersistenceFilter() {
+		// 默认使用HttpSessionSecurityContextRepository，使用httpSession保存安全上下文信息
 		this(new HttpSessionSecurityContextRepository());
 	}
 
@@ -78,7 +72,7 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 		HttpServletResponse response = (HttpServletResponse) res;
 
 		if (request.getAttribute(FILTER_APPLIED) != null) {
-			// ensure that filter is only applied once per request
+			// 确保每个请求仅应用过滤器一次
 			chain.doFilter(request, response);
 			return;
 		}
@@ -104,11 +98,10 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 
 			chain.doFilter(holder.getRequest(), holder.getResponse());
 
-		}
-		finally {
+		} finally {
 			SecurityContext contextAfterChainExecution = SecurityContextHolder
 					.getContext();
-			// Crucial removal of SecurityContextHolder contents - do this before anything
+			// 至关重要的删除SecurityContextHolder内容 - 在任何事情之前执行此操作
 			// else.
 			SecurityContextHolder.clearContext();
 			repo.saveContext(contextAfterChainExecution, holder.getRequest(),

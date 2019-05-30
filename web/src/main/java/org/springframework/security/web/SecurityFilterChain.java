@@ -20,10 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
- * Defines a filter chain which is capable of being matched against an
- * {@code HttpServletRequest}. in order to decide whether it applies to that request.
- * <p>
- * Used to configure a {@code FilterChainProxy}.
+ * 定义一个能够与HttpServletRequest匹配的过滤器链。 以确定它是否适用于该请求。
+ * 用于配置{@code FilterChainProxy}。
  *
  *
  * @author Luke Taylor
