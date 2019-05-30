@@ -48,25 +48,24 @@ import org.springframework.web.filter.GenericFilterBean;
 /**
  * Abstract processor of browser-based HTTP-based authentication requests.
  *
- * <h3>Authentication Process</h3>
+ * <h3>认证处理</h3>
  *
- * The filter requires that you set the <tt>authenticationManager</tt> property. An
- * <tt>AuthenticationManager</tt> is required to process the authentication request tokens
- * created by implementing classes.
+ * 过滤器要求你设置authenticationManager属性. 需要AuthenticationManager来处理通过实现类创建的认证请求令牌。
  * <p>
+ * 如果请求与{@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)}匹配，此过滤器将拦截请求并尝试从该请求执行身份验证。
  * This filter will intercept a request and attempt to perform authentication from that
  * request if the request matches the
  * {@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)}.
  * <p>
- * Authentication is performed by the
- * {@link #attemptAuthentication(HttpServletRequest, HttpServletResponse)
- * attemptAuthentication} method, which must be implemented by subclasses.
+ * 身份验证由{@link #attemptAuthentication(HttpServletRequest, HttpServletResponse) attemptAuthentication}方法执行，该方法必须由子类实现。
  *
- * <h4>Authentication Success</h4>
+ * <h4>认证成功</h4>
+ * 如果认证成功，作为结果的Authentication对象将被放入当前线程的SecurityContext中，该SecurityContext对象保证已由更早的过滤器创建。
+ * 然后将调用配置的{@link #setAuthenticationSuccessHandler(AuthenticationSuccessHandler) AuthenticationSuccessHandler}，
+ * 以便在成功登录后将重定向带到适当的目标。 默认行为在{@link SavedRequestAwareAuthenticationSuccessHandler}中实现，
+ * 该函数将使用ExceptionTranslationFilter设置的任何DefaultSavedRequest，并将用户重定向到其中包含的URL。
+ * 您可以通过注入一个此类的不同的配置实例来自定义此行为或使用不同的实现，否则它将重定向到webapp根目录“/”。
  *
- * If authentication is successful, the resulting {@link Authentication} object will be
- * placed into the <code>SecurityContext</code> for the current thread, which is
- * guaranteed to have already been created by an earlier filter.
  * <p>
  * The configured {@link #setAuthenticationSuccessHandler(AuthenticationSuccessHandler)
  * AuthenticationSuccessHandler} will then be called to take the redirect to the
@@ -81,29 +80,23 @@ import org.springframework.web.filter.GenericFilterBean;
  * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)}
  * method for more information.
  *
- * <h4>Authentication Failure</h4>
+ * <h4>认证失败</h4>
  *
- * If authentication fails, it will delegate to the configured
- * {@link AuthenticationFailureHandler} to allow the failure information to be conveyed to
- * the client. The default implementation is {@link SimpleUrlAuthenticationFailureHandler}
- * , which sends a 401 error code to the client. It may also be configured with a failure
- * URL as an alternative. Again you can inject whatever behaviour you require here.
+ * 如果认证失败, 它将委派给配置的{@link AuthenticationFailureHandler}，以允许将故障信息传达给客户端。
+ * 默认实现是{@link SimpleUrlAuthenticationFailureHandler}，它向客户端发送401错误代码。
+ * 它也可以配置故障URL作为替代。 您可以在此处再次注入您需要的任何行为。
  *
- * <h4>Event Publication</h4>
+ * <h4>事件Publication</h4>
  *
- * If authentication is successful, an {@link InteractiveAuthenticationSuccessEvent} will
- * be published via the application context. No events will be published if authentication
- * was unsuccessful, because this would generally be recorded via an
- * {@code AuthenticationManager}-specific application event.
+ * 如果身份验证成功，将通过应用程序上下文发布{@link InteractiveAuthenticationSuccessEvent}。
+ * 如果身份验证不成功，则不会发布任何事件，因为这通常会通过{@code AuthenticationManager}进行记录——特殊的应用程序事件。
  *
- * <h4>Session Authentication</h4>
+ * <h4>Session认证</h4>
  *
- * The class has an optional {@link SessionAuthenticationStrategy} which will be invoked
- * immediately after a successful call to {@code attemptAuthentication()}. Different
- * implementations
- * {@link #setSessionAuthenticationStrategy(SessionAuthenticationStrategy) can be
- * injected} to enable things like session-fixation attack prevention or to control the
- * number of simultaneous sessions a principal may have.
+ * 该类有一个可选的{@link SessionAuthenticationStrategy}，
+ * 它将在成功调用{@code attemptAuthentication()}后立即调用。
+ * {@link #setSessionAuthenticationStrategy(SessionAuthenticationStrategy) 可以注入}不同的实现
+ * 来启用会话固定攻击防范或控制主体可能具有的同时会话数。
  *
  * @author Ben Alex
  * @author Luke Taylor
