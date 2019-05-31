@@ -150,7 +150,7 @@ public class SecurityContextHolder {
 	}
 
 	/**
-	 * 将创建新的空上下文委派给配置的策略。Delegates the creation of a new, empty context to the configured strategy.
+	 * 将创建新的空context委派给配置的策略。
 	 */
 	public static SecurityContext createEmptyContext() {
 		return strategy.createEmptyContext();

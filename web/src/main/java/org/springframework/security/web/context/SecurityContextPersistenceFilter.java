@@ -89,11 +89,13 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 			}
 		}
 
+		// 从repository中获取SecurityContext
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
 				response);
 		SecurityContext contextBeforeChainExecution = repo.loadContext(holder);
 
 		try {
+			// 将获取到的SecurityContext设置到Holder中
 			SecurityContextHolder.setContext(contextBeforeChainExecution);
 
 			chain.doFilter(holder.getRequest(), holder.getResponse());

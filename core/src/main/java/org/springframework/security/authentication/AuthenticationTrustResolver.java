@@ -19,7 +19,7 @@ package org.springframework.security.authentication;
 import org.springframework.security.core.Authentication;
 
 /**
- * Evaluates <code>Authentication</code> tokens
+ * 评估<code>Authentication</code>令牌
  *
  * @author Ben Alex
  */
@@ -28,6 +28,10 @@ public interface AuthenticationTrustResolver {
 	// ========================================================================================================
 
 	/**
+	 * 指示传递的<code>Authentication</code>令牌是否表示匿名用户。
+	 * 通常，如果框架尝试确定AccessDeniedException是否应该导致最终拒绝
+	 * （即，如果principal是非匿名/完全身份验证的情况），或者指示principal尝试实际身份验证
+	 * （即 如果身份验证仅仅是匿名的话就是这种情况。
 	 * Indicates whether the passed <code>Authentication</code> token represents an
 	 * anonymous user. Typically the framework will call this method if it is trying to
 	 * decide whether an <code>AccessDeniedException</code> should result in a final

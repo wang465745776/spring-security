@@ -38,26 +38,21 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Delegates {@code Filter} requests to a list of Spring-managed filter beans. As of
- * version 2.0, you shouldn't need to explicitly configure a {@code FilterChainProxy} bean
- * in your application context unless you need very fine control over the filter chain
- * contents. Most cases should be adequately covered by the default
- * {@code <security:http />} namespace configuration options.
- * <p>
- * The {@code FilterChainProxy} is linked into the servlet container filter chain by
- * adding a standard Spring {@link DelegatingFilterProxy} declaration in the application
- * {@code web.xml} file.
+ * 将{@code Filter}请求委托到Spring管理的过滤器bean列表。
+ * 从2.0版开始，您不需要在应用程序上下文中显式配置{@code FilterChainProxy} bean，除非您需要对过滤器链内容进行非常精细的控制。
+ * 大多数情况应该由默认的{@code <security:http />}命名空间配置选项充分涵盖。
  *
- * <h2>Configuration</h2>
- * <p>
- * As of version 3.1, {@code FilterChainProxy} is configured using a list of
- * {@link SecurityFilterChain} instances, each of which contains a {@link RequestMatcher}
- * and a list of filters which should be applied to matching requests. Most applications
- * will only contain a single filter chain, and if you are using the namespace, you don't
- * have to set the chains explicitly. If you require finer-grained control, you can make
- * use of the {@code <filter-chain>} namespace element. This defines a URI pattern
- * and the list of filters (as comma-separated bean names) which should be applied to
- * requests which match the pattern. An example configuration might look like this:
+ * 通过在应用程序{@code web.xml}文件中添加标准的Spring {@link DelegatingFilterProxy}声明，
+ * {@code FilterChainProxy}链接到servlet容器过滤器链。
+ *
+ *
+ * <h2>配置</h2>
+ *
+ * 从版本3.1开始，{@code FilterChainProxy}使用{@link SecurityFilterChain}实例列表进行配置，
+ * 每个实例包含一个{@link RequestMatcher}和一个应用于匹配请求的过滤器列表。
+ * 大多数应用程序只包含一个过滤器链，如果您使用的是命名空间，则不必显式设置链。
+ * 如果需要更精细的控制，则可以使用{@code <filter-chain>}命名空间元素。
+ * 这定义了一个URI模式和过滤器列表（以逗号分隔的bean名称），它们应该应用于与模式匹配的请求。 示例配置可能如下所示：
  *
  * <pre>
  *  &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChainProxy"&gt;
@@ -70,14 +65,18 @@ import java.util.*;
  *  &lt;/bean&gt;
  * </pre>
  *
- * The names "filter1", "filter2", "filter3" should be the bean names of {@code Filter}
- * instances defined in the application context. The order of the names defines the order
- * in which the filters will be applied. As shown above, use of the value "none" for the
- * "filters" can be used to exclude a request pattern from the security filter chain
- * entirely. Please consult the security namespace schema file for a full list of
- * available configuration options.
+ * 名称"filter1", "filter2", "filter3"应该是应用程序上下文中定义的{@code Filter}实例的bean名称。
+ * 名称的顺序定义了过滤器的应用顺序。 如上所示，对"filters"使用值"none"可以用于完全从安全过滤器链中排除请求模式。
+ * 有关可用配置选项的完整列表，请参阅security namespace schema文件。
  *
- * <h2>Request Handling</h2>
+ * <h2>请求处理</h2>
+ *
+ * 必须输入{@code FilterChainProxy}可能服务的每种可能模式。 给定请求的第一个匹配项将用于定义应用于该请求的所有过滤器。
+ * 这意味着您必须将大多数特定匹配放在列表顶部，并确保针对相应条目输入应该应用于给定匹配器的所有过滤器。
+ * {@code FilterChainProxy}不会遍历其余的映射条目以查找其他过滤器。
+ *
+ * {@code FilterChainProxy}尊重选择不调用Filter.doFilter（ServletRequest，ServletResponse，FilterChain）的Filter的正常处理，因为不会调用原始或FilterChainProxy声明的过滤器链的其余部分。
+
  * <p>
  * Each possible pattern that the {@code FilterChainProxy} should service must be entered.
  * The first match for a given request will be used to define all of the {@code Filter}s
